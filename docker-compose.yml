@@ -1,0 +1,78 @@
+version: "3.9"
+services:
+  db:
+    image: mysql:8
+    container_name: mysql
+    command: --default-authentication-plugin=mysql_native_password
+    volumes:
+      - db_data:/var/lib/mysql # `db_data` is the name of the volume
+    restart: always
+    ports:
+      - "3308:3306" # <exposed-port>:<port-used-in-container>
+    expose:
+      - "3308" # Opens port 3308 on the container
+    environment:
+      - MYSQL_ROOT_PASSWORD=root@123
+      - MYSQL_DATABASE=app_invite_service
+      - MYSQL_USER=nana
+      - MYSQL_PASSWORD=nana@123
+  db_test:
+    image: mysql:8
+    container_name: mysql_test
+    command: --default-authentication-plugin=mysql_native_password
+    volumes:
+      - db_data_test:/var/lib/mysql # `db_data_test` is the name of the volume
+    restart: always
+    ports:
+      - "3309:3306" # <exposed-port>:<port-used-in-container>
+    expose:
+      - "3309"
+    environment:
+      - MYSQL_ROOT_PASSWORD=root@123
+      - MYSQL_DATABASE=app_invite_service
+      - MYSQL_USER=nana
+      - MYSQL_PASSWORD=nana@123
+  redis:
+    image: redis:7
+    container_name: redis
+    command: redis-server --save 20 1 --loglevel warning --requirepass eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
+    volumes:
+      - cache:/data
+    restart: always
+    ports:
+      - "6380:6379"
+    expose:
+      - "6380"
+  api:
+    image: invite_service
+    container_name: invite_service
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    expose:
+      - "8000"
+    environment:
+      - PORT=8000
+      - APP_ENV=prod
+      - SYSTEM_KEY=nana@123
+      - REFRESH_TOKEN_EXPIRY=604800
+      - ACCESS_TOKEN_EXPIRY=86400
+      - DB_CONNECTION_STR=nana:nana@123@tcp(db:3306)/app_invite_service?charset=utf8mb4&parseTime=True&loc=Local&multiStatements=true
+      - DB_CONNECTION_STR_TEST=nana:nana@123@tcp(db_test:3306)/app_invite_service?charset=utf8mb4&parseTime=True&loc=Local&multiStatements=true
+      - REDIS_HOST=cache
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
+    depends_on:
+      - db
+      - db_test
+      - redis
+    command: [ "/app/main" ]
+# create volumes to rebuild faster
+volumes:
+  db_data:
+  db_data_test:
+  cache:
+    driver: local
