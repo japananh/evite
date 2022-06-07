@@ -59,3 +59,15 @@ func RequiredAuth(appCtx component.AppContext) func(c *gin.Context) {
 		c.Next()
 	}
 }
+
+func RequiredAdmin(_ component.AppContext) func(c *gin.Context) {
+	return func(c *gin.Context) {
+		requester := c.MustGet(common.CurrentUser).(common.Requester)
+
+		if requester.GetRole() == "admin" {
+			c.Next()
+		} else {
+			panic(common.ErrNoPermission(errors.New("only admin can access this route")))
+		}
+	}
+}

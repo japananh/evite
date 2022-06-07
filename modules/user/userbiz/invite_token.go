@@ -3,9 +3,10 @@ package userbiz
 import (
 	"app-invite-service/common"
 	"app-invite-service/component/tokenprovider"
-	"app-invite-service/modules/user/usermodel"
+	usermodel "app-invite-service/modules/user/usermodel"
 	"context"
 	crand "crypto/rand"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/go-redis/redis/v8"
@@ -63,15 +64,17 @@ func GenerateRandomString(min, max int) (string, error) {
 	return string(ret), nil
 }
 
-type IRedis interface {
-	SetNX(ctx context.Context, key string, value interface{}, expiration time.Duration) *redis.BoolCmd
-}
+// generate invitation token
+
+//type IRedis interface {
+//	SetNX(ctx context.Context, key string, value interface{}, expiration time.Duration) *redis.BoolCmd
+//}
 
 type generateTokenBiz struct {
-	redis IRedis
+	redis *redis.Client
 }
 
-func NewGenerateTokenBiz(redis IRedis) *generateTokenBiz {
+func NewGenerateTokenBiz(redis *redis.Client) *generateTokenBiz {
 	return &generateTokenBiz{redis: redis}
 }
 
@@ -83,13 +86,22 @@ func (biz *generateTokenBiz) GenerateToken(ctx context.Context) (*usermodel.Invi
 		return nil, err
 	}
 
-	val, err := biz.redis.SetNX(ctx, token, token, common.InviteTokenExpirySecond*time.Second).Result()
+	payload := usermodel.InvitationToken{Token: token, Status: 1}
+
+	p, err := json.Marshal(payload)
+	if err != nil {
+		return nil, err
+	}
+
+	val, err := biz.redis.SetNX(ctx, token, string(p), common.InviteTokenExpirySecond*time.Second).Result()
 	if err != nil || !val {
 		return nil, err
 	}
 
-	return &usermodel.InvitationToken{Token: token}, nil
+	return &payload, nil
 }
+
+// Login with invitation token
 
 type LoginWithInviteTokenRedis interface {
 	MGet(ctx context.Context, keys ...string) *redis.SliceCmd
@@ -145,25 +157,71 @@ func (biz *loginWithInviteTokenBiz) LoginWithInviteToken(ctx context.Context, da
 	return account, nil
 }
 
-type ValidateInviteTokenRedis interface {
+// Validate invitation token
+
+type ValidateInvitationTokenRedis interface {
 	MGet(ctx context.Context, keys ...string) *redis.SliceCmd
 }
 
 type validateInviteTokenBiz struct {
-	redis ValidateInviteTokenRedis
+	redis ValidateInvitationTokenRedis
 }
 
-func NewValidateInviteTokenBiz(redis ValidateInviteTokenRedis) *validateInviteTokenBiz {
+func NewValidateInviteTokenBiz(redis ValidateInvitationTokenRedis) *validateInviteTokenBiz {
 	return &validateInviteTokenBiz{redis: redis}
 }
 
 func (biz *validateInviteTokenBiz) ValidateInviteToken(
 	ctx context.Context,
-	token usermodel.InvitationToken,
+	token string,
 ) error {
-	if result := biz.redis.MGet(ctx, strings.TrimSpace(token.Token)); result == nil {
+	if result := biz.redis.MGet(ctx, strings.TrimSpace(token)); result == nil {
 		return ErrInvalidInviteToken
 	}
 
 	return nil
+}
+
+// list all invitation token
+
+type ListInvitationTokenRedis interface {
+	Scan(ctx context.Context, cursor uint64, match string, count int64) *redis.ScanCmd
+}
+
+type listInvitationTokenBiz struct {
+	redis ListInvitationTokenRedis
+}
+
+func NewListInvitationTokenBiz(redis ListInvitationTokenRedis) *listInvitationTokenBiz {
+	return &listInvitationTokenBiz{redis: redis}
+}
+
+func (biz *listInvitationTokenBiz) ListInvitationToken(
+	ctx context.Context,
+	filter *usermodel.InvitationTokenFilter,
+	paging *common.Paging,
+) ([]usermodel.InvitationToken, error) {
+	var listToken []usermodel.InvitationToken
+
+	iter := biz.redis.Scan(ctx, 0, "prefix:*", 0).Iterator()
+	for iter.Next(ctx) {
+		token := &usermodel.InvitationToken{}
+		if err := token.UnmarshalBinary([]byte(iter.Val())); err != nil {
+			break
+		}
+		listToken = append(listToken, *token)
+	}
+
+	if err := iter.Err(); err != nil {
+		return nil, err
+	}
+
+	var filteredListToken []usermodel.InvitationToken
+	for _, token := range listToken {
+		if *filter.Status == token.Status {
+			filteredListToken = append(filteredListToken, token)
+		}
+	}
+
+	return filteredListToken, nil
 }

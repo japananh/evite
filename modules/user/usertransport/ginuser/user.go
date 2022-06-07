@@ -99,18 +99,47 @@ func LoginWithInviteToken(appCtx component.AppContext) gin.HandlerFunc {
 
 func ValidateInviteToken(appCtx component.AppContext) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		var data usermodel.InvitationToken
-
-		if err := c.ShouldBind(&data); err != nil {
-			panic(common.ErrInvalidRequest(err))
-		}
+		token := c.Query("invitation_token")
+		//var data usermodel.InvitationToken
+		//
+		//if err := c.ShouldBind(&data); err != nil {
+		//	panic(common.ErrInvalidRequest(err))
+		//}
 
 		redis := appCtx.GetRedisConnection()
 		biz := userbiz.NewValidateInviteTokenBiz(redis)
-		if err := biz.ValidateInviteToken(c.Request.Context(), data); err != nil {
+		if err := biz.ValidateInviteToken(c.Request.Context(), token); err != nil {
 			panic(err)
 		}
 
 		c.JSON(http.StatusOK, common.SimpleSuccessResponse(map[string]bool{"data": true}))
+	}
+}
+
+func ListInvitationToken(appCtx component.AppContext) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var filter usermodel.InvitationTokenFilter
+
+		if err := c.ShouldBind(&filter); err != nil {
+			panic(common.ErrInvalidRequest(err))
+		}
+
+		var paging common.Paging
+
+		paging.Fulfill()
+
+		if err := c.ShouldBind(&paging); err != nil {
+			panic(common.ErrInvalidRequest(err))
+		}
+
+		redis := appCtx.GetRedisConnection()
+		biz := userbiz.NewListInvitationTokenBiz(redis)
+
+		result, err := biz.ListInvitationToken(c.Request.Context(), &filter, &paging)
+		if err != nil {
+			panic(err)
+		}
+
+		c.JSON(http.StatusOK, common.NewSuccessResponse(result, paging, filter))
 	}
 }

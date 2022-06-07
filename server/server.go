@@ -78,11 +78,13 @@ func (s *Server) Start() {
 	v1.POST("/login", ginuser.Login(appCtx))
 	v1.POST("/login/invitation", ginuser.LoginWithInviteToken(appCtx))
 	v1.GET("/token/validation", ginuser.ValidateInviteToken(appCtx))
-
-	tasks := v1.Group("/users", middleware.RequiredAuth(appCtx))
-	{
-		tasks.POST("/invitation", ginuser.GenerateInviteToken(appCtx))
-	}
+	v1.GET("/token/invitation", ginuser.ListInvitationToken(appCtx))
+	v1.GET(
+		"users/invitation",
+		middleware.RequiredAuth(appCtx),
+		middleware.RequiredAdmin(appCtx),
+		ginuser.GenerateInviteToken(appCtx),
+	)
 
 	srv := &http.Server{
 		Addr:    fmt.Sprintf(":%d", s.Port),

@@ -38,6 +38,7 @@ type User struct {
 	Status    int        `json:"status" gorm:"column:status;default:1;"`
 	Email     string     `json:"email" form:"email" binding:"required" gorm:"column:email;"`
 	Password  string     `json:"password" form:"password" binding:"required" gorm:"column:password;"`
+	Role      string     `json:"role" gorm:"column:role;"`
 	Salt      string     `json:"-" gorm:"column:salt;"`
 	CreatedAt *time.Time `json:"created_at,omitempty" gorm:"column:created_at;"`
 	UpdatedAt *time.Time `json:"updated_at,omitempty" gorm:"column:updated_at;"`
@@ -51,8 +52,8 @@ func (u *User) GetUserId() int {
 	return u.Id
 }
 
-func (u *User) GetEmail() string {
-	return u.Email
+func (u *User) GetRole() string {
+	return u.Role
 }
 
 type UserCreate struct {
@@ -60,6 +61,7 @@ type UserCreate struct {
 	Status    int        `json:"status" gorm:"column:status;default:1;"`
 	Email     string     `json:"email" form:"email" binding:"required" gorm:"column:email;"`
 	Password  string     `json:"password" form:"password" binding:"required" gorm:"column:password;"`
+	Role      string     `json:"role" form:"role" gorm:"column:role;type:enum('user', 'admin');default:'user'"`
 	Salt      string     `json:"-" gorm:"column:salt;"`
 	CreatedAt *time.Time `json:"created_at,omitempty" gorm:"column:created_at;"`
 	UpdatedAt *time.Time `json:"updated_at,omitempty" gorm:"column:updated_at;"`
@@ -152,5 +154,23 @@ func NewAccount(at, rt *tokenprovider.Token) *Account {
 }
 
 type InvitationToken struct {
-	Token string `json:"invite_token"`
+	Status int    `json:"status"`
+	Expiry int    `json:"expiry"`
+	Token  string `json:"invite_token"`
 }
+
+type InvitationTokenFilter struct {
+	Status *int `json:"status,omitempty" form:"status"`
+}
+
+//func (t *InvitationToken) MarshalBinary() ([]byte, error) {
+//	return json.Marshal(t)
+//}
+//
+//func (t *InvitationToken) UnmarshalBinary(data []byte) error {
+//	if err := json.Unmarshal(data, &t); err != nil {
+//		return err
+//	}
+//
+//	return nil
+//}

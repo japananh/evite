@@ -77,46 +77,6 @@ func ErrInternal(err error) *AppError {
 	return NewFullErrorResponse(http.StatusInternalServerError, err, "something went wrong in the server", err.Error(), "ErrInternal")
 }
 
-//func ErrCannotListEntity(entity string, err error) *AppError {
-//	return NewCustomError(
-//		err,
-//		fmt.Sprintf("cannot list %s", strings.ToLower(entity)),
-//		fmt.Sprintf("ErrCannotList%s", entity),
-//	)
-//}
-//
-//func ErrCannotDeleteEntity(entity string, err error) *AppError {
-//	return NewCustomError(
-//		err,
-//		fmt.Sprintf("cannot delete %s", strings.ToLower(entity)),
-//		fmt.Sprintf("ErrCannotList%s", entity),
-//	)
-//}
-//
-//func ErrCannotUpdateEntity(entity string, err error) *AppError {
-//	return NewCustomError(
-//		err,
-//		fmt.Sprintf("cannot update %s", strings.ToLower(entity)),
-//		fmt.Sprintf("ErrCannotUpdate%s", entity),
-//	)
-//}
-//
-//func ErrCannotGetEntity(entity string, err error) *AppError {
-//	return NewCustomError(
-//		err,
-//		fmt.Sprintf("cannot get %s", strings.ToLower(entity)),
-//		fmt.Sprintf("ErrCannotGet%s", entity),
-//	)
-//}
-//
-//func ErrEntityDeleted(entity string, err error) *AppError {
-//	return NewCustomError(
-//		err,
-//		fmt.Sprintf("%s deleted", strings.ToLower(entity)),
-//		fmt.Sprintf("Err%sDeleted", entity),
-//	)
-//}
-
 func ErrEntityExisted(entity string, err error) *AppError {
 	return NewCustomError(
 		err,
@@ -124,14 +84,6 @@ func ErrEntityExisted(entity string, err error) *AppError {
 		fmt.Sprintf("Err%sAlreadyExists", entity),
 	)
 }
-
-//func ErrEntityNotFound(entity string, err error) *AppError {
-//	return NewCustomError(
-//		err,
-//		fmt.Sprintf("%s not found", strings.ToLower(entity)),
-//		fmt.Sprintf("Err%sNotFound", entity),
-//	)
-//}
 
 func ErrCannotCreateEntity(entity string, err error) *AppError {
 	return NewCustomError(

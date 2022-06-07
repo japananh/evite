@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS `users` (
    `email` varchar(50) UNIQUE NOT NULL,
     `password` varchar(50) NOT NULL,
     `salt` varchar(50) NOT NULL,
+    `role` ENUM ('user', 'admin') DEFAULT 'user',
     `status` smallint unsigned NOT NULL DEFAULT 1,
     `created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
     `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
