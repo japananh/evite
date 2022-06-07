@@ -26,7 +26,7 @@ This project has 5 Domain layers:
 * Business Layer
 * Transport Layer
 
-![project architecture diagram](https://imge.cloud/images/2022/06/07/rZ1cup.png)
+![project architecture diagram](https://i.postimg.cc/8zfZW6sW/clean-arch-diagram.png)
 
 ### API Endpoints
 
