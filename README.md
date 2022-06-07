@@ -1,13 +1,13 @@
 # App Invitation Service
 
-## How to run project locally?
+## How to run this project
 
 You need to install Go version 1.18 and an IDE/editor such as Goland or VSCode to run the project.
 
 ```bash
 # create `.env` file
 cp .env.template .env
-# run docker-compose to create mySQL database and server
+# run docker-compose to create MySQL database and Go server
 make start
 # down all services
 make stop
@@ -15,13 +15,22 @@ make stop
 make test
 ```
 
-## Project structure
+## Description
 
-### Folder structure
+### Project structure
+
+This project has 5 Domain layers:
+* Model Layer
+* Storage Layer
+* Repository Layer
+* Business Layer
+* Transport Layer
 
 ![project architecture diagram](https://imge.cloud/images/2022/06/07/rZ1cup.png)
 
 ### API Endpoints
+
+The Go server will run default on port `8000`.
 
 - POST `/api/v1/register`: create a new user with email and password
 - POST `/api/v1/login`: login with email and password
