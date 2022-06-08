@@ -204,23 +204,31 @@ func NewListInvitationTokenBiz(redis *redis.Client) *listInvitationTokenBiz {
 func (biz *listInvitationTokenBiz) ListInvitationToken(
 	ctx context.Context,
 	filter *usermodel.InvitationTokenFilter,
-	_ *common.Paging,
 ) ([]usermodel.InvitationToken, error) {
 	var listToken []usermodel.InvitationToken
 
-	iter := biz.redis.Scan(ctx, 0, "prefix:*", 0).Iterator()
+	iter := biz.redis.Scan(ctx, 0, "*", 0).Iterator()
 	for iter.Next(ctx) {
-		token := &usermodel.InvitationToken{}
-		if err := token.UnmarshalBinary([]byte(iter.Val())); err != nil {
-			break
+		tokenFromRedis := biz.redis.Get(ctx, iter.Val())
+		if tokenFromRedis.Val() == "" {
+			continue
 		}
-		listToken = append(listToken, *token)
+		token := usermodel.InvitationToken{}
+		if err := token.UnmarshalBinary([]byte(tokenFromRedis.Val())); err != nil {
+			continue
+		}
+		listToken = append(listToken, token)
 	}
 
 	if err := iter.Err(); err != nil {
 		return nil, err
 	}
 
+	if filter.Status == nil {
+		return listToken, nil
+	}
+
+	// filter token by status
 	var filteredListToken []usermodel.InvitationToken
 	for _, token := range listToken {
 		if *filter.Status == token.Status {

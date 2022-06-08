@@ -111,28 +111,19 @@ func ValidateInvitationToken(appCtx component.AppContext) gin.HandlerFunc {
 func ListInvitationToken(appCtx component.AppContext) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var filter usermodel.InvitationTokenFilter
-
 		if err := c.ShouldBind(&filter); err != nil {
-			panic(common.ErrInvalidRequest(err))
-		}
-
-		var paging common.Paging
-
-		paging.Fulfill()
-
-		if err := c.ShouldBind(&paging); err != nil {
 			panic(common.ErrInvalidRequest(err))
 		}
 
 		redis := appCtx.GetRedisConnection()
 		biz := userbiz.NewListInvitationTokenBiz(redis)
 
-		result, err := biz.ListInvitationToken(c.Request.Context(), &filter, &paging)
+		result, err := biz.ListInvitationToken(c.Request.Context(), &filter)
 		if err != nil {
 			panic(err)
 		}
 
-		c.JSON(http.StatusOK, common.NewSuccessResponse(result, paging, filter))
+		c.JSON(http.StatusOK, common.NewSuccessResponse(result, nil, filter))
 	}
 }
 

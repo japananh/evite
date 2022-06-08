@@ -15,7 +15,7 @@
 - [x] Use an actual DB
 - [x] Deployment instructions are written in `README.md` 
 - [x] Write tests (unit tests and integration tests)
-- [ ] An admin can get an overview of active and inactive tokens
+- [x] An admin can get an overview of active and inactive tokens
 - [ ] Document the APIs in Swagger
 - [ ] The invite token validation logic needs to be throttled (limit the requests coming from a
   specific client)
