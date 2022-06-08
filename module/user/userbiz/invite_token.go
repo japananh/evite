@@ -3,7 +3,7 @@ package userbiz
 import (
 	"app-invite-service/common"
 	"app-invite-service/component/tokenprovider"
-	usermodel "app-invite-service/modules/user/usermodel"
+	usermodel "app-invite-service/module/user/usermodel"
 	"context"
 	crand "crypto/rand"
 	"errors"

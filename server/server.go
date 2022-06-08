@@ -4,7 +4,7 @@ import (
 	"app-invite-service/component"
 	"app-invite-service/component/tokenprovider"
 	"app-invite-service/middleware"
-	"app-invite-service/modules/user/usertransport/ginuser"
+	"app-invite-service/module/user/usertransport/ginuser"
 	"context"
 	"database/sql"
 	"errors"

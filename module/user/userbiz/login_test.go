@@ -3,8 +3,8 @@ package userbiz_test
 import (
 	"app-invite-service/component/tokenprovider"
 	"app-invite-service/mock"
-	"app-invite-service/modules/user/userbiz"
-	"app-invite-service/modules/user/usermodel"
+	"app-invite-service/module/user/userbiz"
+	"app-invite-service/module/user/usermodel"
 	"errors"
 	"github.com/stretchr/testify/assert"
 	"testing"

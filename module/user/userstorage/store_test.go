@@ -1,7 +1,7 @@
 package userstorage
 
 import (
-	"app-invite-service/modules/user/usermodel"
+	"app-invite-service/module/user/usermodel"
 	"context"
 	"gorm.io/gorm"
 	"reflect"

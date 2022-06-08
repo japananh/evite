@@ -5,9 +5,9 @@ import (
 	"app-invite-service/component"
 	"app-invite-service/component/hash"
 	"app-invite-service/component/tokenprovider/jwt"
-	"app-invite-service/modules/user/userbiz"
-	"app-invite-service/modules/user/usermodel"
-	"app-invite-service/modules/user/userstorage"
+	"app-invite-service/module/user/userbiz"
+	"app-invite-service/module/user/usermodel"
+	"app-invite-service/module/user/userstorage"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )

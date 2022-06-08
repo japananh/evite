@@ -2,7 +2,7 @@ package userbiz
 
 import (
 	"app-invite-service/common"
-	"app-invite-service/modules/user/usermodel"
+	"app-invite-service/module/user/usermodel"
 	"context"
 )
 

@@ -4,7 +4,7 @@ import (
 	"app-invite-service/common"
 	"app-invite-service/component"
 	"app-invite-service/component/tokenprovider/jwt"
-	"app-invite-service/modules/user/userstorage"
+	"app-invite-service/module/user/userstorage"
 	"errors"
 	"strings"
 

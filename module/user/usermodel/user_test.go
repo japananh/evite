@@ -1,7 +1,7 @@
 package usermodel_test
 
 import (
-	"app-invite-service/modules/user/usermodel"
+	"app-invite-service/module/user/usermodel"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"testing"

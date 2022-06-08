@@ -3,7 +3,7 @@ package mock
 import (
 	"app-invite-service/common"
 	"app-invite-service/component/tokenprovider"
-	"app-invite-service/modules/user/usermodel"
+	"app-invite-service/module/user/usermodel"
 	"context"
 	"time"
 )
