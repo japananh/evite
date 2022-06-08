@@ -32,12 +32,13 @@ This project has 5 Domain layers:
 
 The Go server will run default on port `8000`.
 
+- GET `/api/v1/users/invitation`: Admin generates an invitation token
+- POST `/api/v1/login/invitation`: login with an invitation token
+- GET `/api/v1/token/validation?invitation_token=`: validate an invitation token
+- GET `/api/v1/token/invitation?status=`: Admin gets invitation token by status
+- PATCH `/api/v1/token/invitation/:invitation_token`: Admin disable/enable an invitation token
 - POST `/api/v1/register`: create a new user with email and password
 - POST `/api/v1/login`: login with email and password
-- POST `/api/v1/login/invitation`: login with an invitation token
-- GET `/api/v1/users/invitation`: generate an invitation token
-- GET `/api/v1/token/validation?invite_token=`: validate an invitation token
-- DELETE `/api/v1/token/{invite_token}`: delete an invitation token
 
 ## Documentation
 

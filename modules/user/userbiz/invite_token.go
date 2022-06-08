@@ -6,7 +6,6 @@ import (
 	usermodel "app-invite-service/modules/user/usermodel"
 	"context"
 	crand "crypto/rand"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/go-redis/redis/v8"
@@ -84,7 +83,7 @@ func (biz *generateTokenBiz) GenerateToken(ctx context.Context) (*usermodel.Invi
 
 	payload := usermodel.InvitationToken{Token: token, Status: 1}
 
-	p, err := json.Marshal(payload)
+	p, err := payload.MarshalBinary()
 	if err != nil {
 		return nil, err
 	}
@@ -170,11 +169,22 @@ func NewValidateInviteTokenBiz(redis *redis.Client) *validateInviteTokenBiz {
 	return &validateInviteTokenBiz{redis: redis}
 }
 
-func (biz *validateInviteTokenBiz) ValidateInviteToken(
+func (biz *validateInviteTokenBiz) ValidateInvitationToken(
 	ctx context.Context,
 	token string,
 ) error {
-	if result := biz.redis.MGet(ctx, strings.TrimSpace(token)); result == nil {
+	// check token existed
+	tokenFromRedis := biz.redis.Get(ctx, strings.TrimSpace(token))
+	if tokenFromRedis.Val() == "" {
+		return ErrInviteTokenNotExisted
+	}
+
+	// check whether token disabled or not
+	var foundToken usermodel.InvitationToken
+	if err := foundToken.UnmarshalBinary([]byte(tokenFromRedis.Val())); err != nil {
+		return common.ErrInternal(err)
+	}
+	if foundToken.Status == 0 {
 		return ErrInvalidInviteToken
 	}
 
@@ -194,7 +204,7 @@ func NewListInvitationTokenBiz(redis *redis.Client) *listInvitationTokenBiz {
 func (biz *listInvitationTokenBiz) ListInvitationToken(
 	ctx context.Context,
 	filter *usermodel.InvitationTokenFilter,
-	paging *common.Paging,
+	_ *common.Paging,
 ) ([]usermodel.InvitationToken, error) {
 	var listToken []usermodel.InvitationToken
 
@@ -219,4 +229,44 @@ func (biz *listInvitationTokenBiz) ListInvitationToken(
 	}
 
 	return filteredListToken, nil
+}
+
+// Update invitation token
+
+type updateInvitationTokenBiz struct {
+	redis *redis.Client
+}
+
+func NewUpdateInvitationTokenBiz(redis *redis.Client) *updateInvitationTokenBiz {
+	return &updateInvitationTokenBiz{redis: redis}
+}
+
+func (biz *updateInvitationTokenBiz) UpdateInvitationToken(
+	ctx context.Context,
+	token string,
+	data *usermodel.InvitationTokenUpdate,
+) error {
+	// check redis token existed
+	tokenFromRedis := biz.redis.Get(ctx, strings.TrimSpace(token))
+	if tokenFromRedis.Val() == "" {
+		return ErrInviteTokenNotExisted
+	}
+
+	var foundToken usermodel.InvitationToken
+	if err := foundToken.UnmarshalBinary([]byte(tokenFromRedis.Val())); err != nil {
+		return common.ErrInternal(err)
+	}
+
+	// update token
+	foundToken.Status = data.Status
+	t, err := foundToken.MarshalBinary()
+	if err != nil {
+		return common.ErrInternal(err)
+	}
+
+	if _, err := biz.redis.SetXX(ctx, token, t, redis.KeepTTL).Result(); err != nil {
+		return common.ErrInternal(err)
+	}
+
+	return nil
 }

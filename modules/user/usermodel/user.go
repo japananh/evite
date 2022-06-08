@@ -157,7 +157,7 @@ func NewAccount(at, rt *tokenprovider.Token) *Account {
 type InvitationToken struct {
 	Status int    `json:"status"`
 	Expiry int    `json:"expiry"`
-	Token  string `json:"invite_token"`
+	Token  string `json:"token"`
 }
 
 func (t *InvitationToken) MarshalBinary() ([]byte, error) {
@@ -170,6 +170,10 @@ func (t *InvitationToken) UnmarshalBinary(data []byte) error {
 	}
 
 	return nil
+}
+
+type InvitationTokenUpdate struct {
+	Status int `json:"status" form:"status"`
 }
 
 type InvitationTokenFilter struct {

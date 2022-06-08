@@ -8,9 +8,8 @@ import (
 	"app-invite-service/modules/user/userbiz"
 	"app-invite-service/modules/user/usermodel"
 	"app-invite-service/modules/user/userstorage"
-	"net/http"
-
 	"github.com/gin-gonic/gin"
+	"net/http"
 )
 
 func Login(appCtx component.AppContext) gin.HandlerFunc {
@@ -97,22 +96,15 @@ func LoginWithInviteToken(appCtx component.AppContext) gin.HandlerFunc {
 	}
 }
 
-func ValidateInviteToken(appCtx component.AppContext) gin.HandlerFunc {
+func ValidateInvitationToken(appCtx component.AppContext) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		token := c.Query("invitation_token")
-		//var data usermodel.InvitationToken
-		//
-		//if err := c.ShouldBind(&data); err != nil {
-		//	panic(common.ErrInvalidRequest(err))
-		//}
-
 		redis := appCtx.GetRedisConnection()
 		biz := userbiz.NewValidateInviteTokenBiz(redis)
-		if err := biz.ValidateInviteToken(c.Request.Context(), token); err != nil {
+		if err := biz.ValidateInvitationToken(c.Request.Context(), c.Query("invitation_token")); err != nil {
 			panic(err)
 		}
 
-		c.JSON(http.StatusOK, common.SimpleSuccessResponse(map[string]bool{"data": true}))
+		c.JSON(http.StatusOK, common.SimpleSuccessResponse(map[string]bool{"success": true}))
 	}
 }
 
@@ -141,5 +133,22 @@ func ListInvitationToken(appCtx component.AppContext) gin.HandlerFunc {
 		}
 
 		c.JSON(http.StatusOK, common.NewSuccessResponse(result, paging, filter))
+	}
+}
+
+func UpdateInvitationToken(appCtx component.AppContext) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var data usermodel.InvitationTokenUpdate
+		if err := c.ShouldBind(&data); err != nil {
+			panic(common.ErrInvalidRequest(err))
+		}
+
+		redis := appCtx.GetRedisConnection()
+		biz := userbiz.NewUpdateInvitationTokenBiz(redis)
+		if err := biz.UpdateInvitationToken(c.Request.Context(), c.Param("id"), &data); err != nil {
+			panic(err)
+		}
+
+		c.JSON(http.StatusOK, common.SimpleSuccessResponse(map[string]bool{"success": true}))
 	}
 }

@@ -77,8 +77,21 @@ func (s *Server) Start() {
 	v1.POST("/register", ginuser.Register(appCtx))
 	v1.POST("/login", ginuser.Login(appCtx))
 	v1.POST("/login/invitation", ginuser.LoginWithInviteToken(appCtx))
-	v1.GET("/token/validation", ginuser.ValidateInviteToken(appCtx))
-	v1.GET("/token/invitation", ginuser.ListInvitationToken(appCtx))
+
+	v1.GET("/token/validation", ginuser.ValidateInvitationToken(appCtx))
+	v1.GET(
+		"/token/invitation",
+		middleware.RequiredAuth(appCtx),
+		middleware.RequiredAdmin(appCtx),
+		ginuser.ListInvitationToken(appCtx),
+	)
+	v1.PATCH(
+		"/token/invitation/:id",
+		middleware.RequiredAuth(appCtx),
+		middleware.RequiredAdmin(appCtx),
+		ginuser.UpdateInvitationToken(appCtx),
+	)
+
 	v1.GET(
 		"users/invitation",
 		middleware.RequiredAuth(appCtx),
