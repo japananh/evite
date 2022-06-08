@@ -3,6 +3,7 @@ package usermodel
 import (
 	"app-invite-service/common"
 	"app-invite-service/component/tokenprovider"
+	"encoding/json"
 	"errors"
 	"strings"
 	"time"
@@ -133,7 +134,7 @@ func (UserLogin) TableName() string {
 }
 
 type UserLoginWithInviteToken struct {
-	InvitationToken string `json:"invite_token" form:"invite_token" binding:"required"`
+	InvitationToken string `json:"invitation_token" form:"invitation_token" binding:"required"`
 }
 
 func (u *UserLoginWithInviteToken) Validate() error {
@@ -159,18 +160,18 @@ type InvitationToken struct {
 	Token  string `json:"invite_token"`
 }
 
+func (t *InvitationToken) MarshalBinary() ([]byte, error) {
+	return json.Marshal(t)
+}
+
+func (t *InvitationToken) UnmarshalBinary(data []byte) error {
+	if err := json.Unmarshal(data, &t); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 type InvitationTokenFilter struct {
 	Status *int `json:"status,omitempty" form:"status"`
 }
-
-//func (t *InvitationToken) MarshalBinary() ([]byte, error) {
-//	return json.Marshal(t)
-//}
-//
-//func (t *InvitationToken) UnmarshalBinary(data []byte) error {
-//	if err := json.Unmarshal(data, &t); err != nil {
-//		return err
-//	}
-//
-//	return nil
-//}

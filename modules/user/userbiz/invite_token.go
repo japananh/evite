@@ -66,10 +66,6 @@ func GenerateRandomString(min, max int) (string, error) {
 
 // generate invitation token
 
-//type IRedis interface {
-//	SetNX(ctx context.Context, key string, value interface{}, expiration time.Duration) *redis.BoolCmd
-//}
-
 type generateTokenBiz struct {
 	redis *redis.Client
 }
@@ -103,19 +99,15 @@ func (biz *generateTokenBiz) GenerateToken(ctx context.Context) (*usermodel.Invi
 
 // Login with invitation token
 
-type LoginWithInviteTokenRedis interface {
-	MGet(ctx context.Context, keys ...string) *redis.SliceCmd
-}
-
 type loginWithInviteTokenBiz struct {
-	redis         LoginWithInviteTokenRedis
+	redis         *redis.Client
 	tokenProvider tokenprovider.Provider
 	hash          Hash
 	tokenConfig   *tokenprovider.TokenConfig
 }
 
 func NewLoginWithInviteTokenBiz(
-	redis LoginWithInviteTokenRedis,
+	redis *redis.Client,
 	tokenProvider tokenprovider.Provider,
 	hash Hash,
 	tokenConfig *tokenprovider.TokenConfig,
@@ -133,11 +125,22 @@ func (biz *loginWithInviteTokenBiz) LoginWithInviteToken(ctx context.Context, da
 		return nil, err
 	}
 
-	// validate redis token
-	if result := biz.redis.MGet(ctx, data.InvitationToken); result == nil {
+	// check redis token existed
+	tokenFromRedis := biz.redis.Get(ctx, data.InvitationToken)
+	if tokenFromRedis.Val() == "" {
 		return nil, ErrInviteTokenNotExisted
 	}
 
+	// check whether invitation token is disabled or not
+	var foundToken usermodel.InvitationToken
+	if err := foundToken.UnmarshalBinary([]byte(tokenFromRedis.Val())); err != nil {
+		return nil, common.ErrInternal(err)
+	}
+	if foundToken.Status == 0 {
+		return nil, ErrInvalidInviteToken
+	}
+
+	// create JWT token
 	payload := tokenprovider.TokenPayload{
 		InvitationToken: data.InvitationToken,
 	}
@@ -159,15 +162,11 @@ func (biz *loginWithInviteTokenBiz) LoginWithInviteToken(ctx context.Context, da
 
 // Validate invitation token
 
-type ValidateInvitationTokenRedis interface {
-	MGet(ctx context.Context, keys ...string) *redis.SliceCmd
-}
-
 type validateInviteTokenBiz struct {
-	redis ValidateInvitationTokenRedis
+	redis *redis.Client
 }
 
-func NewValidateInviteTokenBiz(redis ValidateInvitationTokenRedis) *validateInviteTokenBiz {
+func NewValidateInviteTokenBiz(redis *redis.Client) *validateInviteTokenBiz {
 	return &validateInviteTokenBiz{redis: redis}
 }
 
@@ -184,15 +183,11 @@ func (biz *validateInviteTokenBiz) ValidateInviteToken(
 
 // list all invitation token
 
-type ListInvitationTokenRedis interface {
-	Scan(ctx context.Context, cursor uint64, match string, count int64) *redis.ScanCmd
-}
-
 type listInvitationTokenBiz struct {
-	redis ListInvitationTokenRedis
+	redis *redis.Client
 }
 
-func NewListInvitationTokenBiz(redis ListInvitationTokenRedis) *listInvitationTokenBiz {
+func NewListInvitationTokenBiz(redis *redis.Client) *listInvitationTokenBiz {
 	return &listInvitationTokenBiz{redis: redis}
 }
 
