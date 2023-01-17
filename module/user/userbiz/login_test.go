@@ -1,13 +1,15 @@
 package userbiz_test
 
 import (
+	"errors"
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+
 	"app-invite-service/component/tokenprovider"
 	"app-invite-service/mock"
 	"app-invite-service/module/user/userbiz"
 	"app-invite-service/module/user/usermodel"
-	"errors"
-	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestLoginBiz_Login(t *testing.T) {

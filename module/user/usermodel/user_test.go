@@ -1,10 +1,12 @@
 package usermodel_test
 
 import (
-	"app-invite-service/module/user/usermodel"
+	"testing"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"testing"
+
+	"app-invite-service/module/user/usermodel"
 )
 
 func TestUserCreate_Validate(t *testing.T) {

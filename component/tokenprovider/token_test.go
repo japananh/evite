@@ -2,9 +2,10 @@ package tokenprovider_test
 
 import (
 	"app-invite-service/component/tokenprovider"
+	"testing"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"testing"
 )
 
 func TestToken_NewTokenConfig(t *testing.T) {

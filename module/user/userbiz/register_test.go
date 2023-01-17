@@ -5,8 +5,9 @@ import (
 	"app-invite-service/module/user/userbiz"
 	"app-invite-service/module/user/usermodel"
 	"errors"
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestUserBiz_Register(t *testing.T) {

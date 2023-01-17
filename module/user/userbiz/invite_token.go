@@ -8,12 +8,13 @@ import (
 	crand "crypto/rand"
 	"errors"
 	"fmt"
-	"github.com/go-redis/redis/v8"
 	"io"
 	"math/big"
 	"math/rand"
 	"strings"
 	"time"
+
+	"github.com/go-redis/redis/v8"
 )
 
 var (
@@ -65,11 +66,15 @@ func GenerateRandomString(min, max int) (string, error) {
 
 // generate invitation token
 
+type IGenerateTokenBiz interface {
+	GenerateToken(ctx context.Context) (*usermodel.InvitationToken, error)
+}
+
 type generateTokenBiz struct {
 	redis *redis.Client
 }
 
-func NewGenerateTokenBiz(redis *redis.Client) *generateTokenBiz {
+func NewGenerateTokenBiz(redis *redis.Client) IGenerateTokenBiz {
 	return &generateTokenBiz{redis: redis}
 }
 
@@ -98,6 +103,10 @@ func (biz *generateTokenBiz) GenerateToken(ctx context.Context) (*usermodel.Invi
 
 // Login with invitation token
 
+type ILoginWithInviteTokenBiz interface {
+	LoginWithInviteToken(ctx context.Context, data *usermodel.UserLoginWithInviteToken) (*usermodel.Account, error)
+}
+
 type loginWithInviteTokenBiz struct {
 	redis         *redis.Client
 	tokenProvider tokenprovider.Provider
@@ -110,7 +119,7 @@ func NewLoginWithInviteTokenBiz(
 	tokenProvider tokenprovider.Provider,
 	hash Hash,
 	tokenConfig *tokenprovider.TokenConfig,
-) *loginWithInviteTokenBiz {
+) ILoginWithInviteTokenBiz {
 	return &loginWithInviteTokenBiz{
 		redis:         redis,
 		tokenProvider: tokenProvider,
@@ -161,18 +170,19 @@ func (biz *loginWithInviteTokenBiz) LoginWithInviteToken(ctx context.Context, da
 
 // Validate invitation token
 
+type IValidateInviteTokenBiz interface {
+	ValidateInvitationToken(ctx context.Context, token string) error
+}
+
 type validateInviteTokenBiz struct {
 	redis *redis.Client
 }
 
-func NewValidateInviteTokenBiz(redis *redis.Client) *validateInviteTokenBiz {
+func NewValidateInviteTokenBiz(redis *redis.Client) IValidateInviteTokenBiz {
 	return &validateInviteTokenBiz{redis: redis}
 }
 
-func (biz *validateInviteTokenBiz) ValidateInvitationToken(
-	ctx context.Context,
-	token string,
-) error {
+func (biz *validateInviteTokenBiz) ValidateInvitationToken(ctx context.Context, token string) error {
 	// check token existed
 	tokenFromRedis := biz.redis.Get(ctx, strings.TrimSpace(token))
 	if tokenFromRedis.Val() == "" {
@@ -191,19 +201,22 @@ func (biz *validateInviteTokenBiz) ValidateInvitationToken(
 	return nil
 }
 
-// list all invitation token
+// List all invitation token
+
+type IListInvitationTokenBiz interface {
+	ListInvitationToken(ctx context.Context, filter *usermodel.InvitationTokenFilter) ([]usermodel.InvitationToken, error)
+}
 
 type listInvitationTokenBiz struct {
 	redis *redis.Client
 }
 
-func NewListInvitationTokenBiz(redis *redis.Client) *listInvitationTokenBiz {
+func NewListInvitationTokenBiz(redis *redis.Client) IListInvitationTokenBiz {
 	return &listInvitationTokenBiz{redis: redis}
 }
 
 func (biz *listInvitationTokenBiz) ListInvitationToken(
-	ctx context.Context,
-	filter *usermodel.InvitationTokenFilter,
+	ctx context.Context, filter *usermodel.InvitationTokenFilter,
 ) ([]usermodel.InvitationToken, error) {
 	var listToken []usermodel.InvitationToken
 
@@ -241,11 +254,15 @@ func (biz *listInvitationTokenBiz) ListInvitationToken(
 
 // Update invitation token
 
+type IUpdateInvitationTokenBiz interface {
+	UpdateInvitationToken(ctx context.Context, token string, data *usermodel.InvitationTokenUpdate) error
+}
+
 type updateInvitationTokenBiz struct {
 	redis *redis.Client
 }
 
-func NewUpdateInvitationTokenBiz(redis *redis.Client) *updateInvitationTokenBiz {
+func NewUpdateInvitationTokenBiz(redis *redis.Client) IUpdateInvitationTokenBiz {
 	return &updateInvitationTokenBiz{redis: redis}
 }
 

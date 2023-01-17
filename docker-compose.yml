@@ -1,4 +1,5 @@
 version: "3.9"
+
 services:
   db:
     image: mysql:8
@@ -13,9 +14,10 @@ services:
       - "3308" # Opens port 3308 on the container
     environment:
       - MYSQL_ROOT_PASSWORD=root@123
-      - MYSQL_DATABASE=app_invite_service
-      - MYSQL_USER=nana
-      - MYSQL_PASSWORD=nana@123
+      - MYSQL_DATABASE=evite
+      - MYSQL_USER=user
+      - MYSQL_PASSWORD=password
+
   db_test:
     image: mysql:8
     container_name: mysql_test
@@ -29,9 +31,10 @@ services:
       - "3309"
     environment:
       - MYSQL_ROOT_PASSWORD=root@123
-      - MYSQL_DATABASE=app_invite_service
-      - MYSQL_USER=nana
-      - MYSQL_PASSWORD=nana@123
+      - MYSQL_DATABASE=evite
+      - MYSQL_USER=user
+      - MYSQL_PASSWORD=password
+
   redis:
     image: redis:7
     container_name: redis
@@ -43,6 +46,7 @@ services:
       - "6380:6379"
     expose:
       - "6380"
+
   api:
     image: invite_service
     container_name: invite_service
@@ -55,21 +59,23 @@ services:
     expose:
       - "8000"
     environment:
-      - PORT=8000
+      - APP_PORT=8000
       - APP_ENV=prod
-      - SYSTEM_KEY=nana@123
+      - APP_SECRET_KEY=secret
       - REFRESH_TOKEN_EXPIRY=604800
       - ACCESS_TOKEN_EXPIRY=86400
-      - DB_CONNECTION_STR=nana:nana@123@tcp(db:3306)/app_invite_service?charset=utf8mb4&parseTime=True&loc=Local&multiStatements=true
-      - DB_CONNECTION_STR_TEST=nana:nana@123@tcp(db_test:3306)/app_invite_service?charset=utf8mb4&parseTime=True&loc=Local&multiStatements=true
-      - REDIS_HOST=cache
-      - REDIS_PORT=6379
+      - ALLOWED_ORIGINS=api:8000
+      - LOG_LEVEL
+      - MYSQL_POOL_MAX=2
+      - MYSQL_URL=user:password@tcp(db:3306)/evite?charset=utf8mb4&parseTime=True&loc=Local&multiStatements=true
+      - REDIS_HOST=redis
+      - REDIS_PORT=6380
       - REDIS_PASSWORD=eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
     depends_on:
       - db
-      - db_test
       - redis
     command: [ "/app/main" ]
+
 # create volumes to rebuild faster
 volumes:
   db_data:

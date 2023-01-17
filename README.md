@@ -1,4 +1,4 @@
-# App Invitation Service
+# Evite - App Invitation Service
 
 ## Requirements
 
@@ -22,7 +22,8 @@
 
 ## How to run this project
 
-You need to install Go version 1.18 and an IDE/editor such as Goland or VSCode to run the project.
+You need to install Go version >= 1.18 and an IDE/editor such as Goland or VSCode to run the project.
+All scripts can be found at ```Makefile```.
 
 ```bash
 # create `.env` file
@@ -35,16 +36,29 @@ make stop
 make test
 ```
 
+## CI/CD
+
+The server uses [pre-commit hook](https://github.com/dnephin/pre-commit-golang). Run these scripts below before creating a commit.
+
+Install requires libraries:
+- pre-commit: https://pre-commit.com/#installation
+- golangci-lint: https://golangci-lint.run/usage/install/#local-installation
+
+```bash
+# Run pre-commit install to install pre-commit into your git hooks. pre-commit will now run on every commit.
+pre-commit install
+```
+
 ## Description
 
 ### Project structure
 
 This project has 5 Domain layers:
-* Model Layer
-* Storage Layer: interact with databases such as RLDB/NoSQL or File System or Remote API.
-* Repository Layer (optional): provides data for the Business Layer.
-* Business Layer: business logic happened here.
-* Transport Layer: receive HTTP requests from Client, parse data (if needed).
+* **Model Layer**
+* **Storage Layer**: interacts with databases such as RLDB/NoSQL or File System or Remote API.
+* **Repository Layer** (optional): provides data for the Business Layer.
+* **Business Layer**: business logic happened here.
+* **Transport Layer**: receives HTTP requests from Client, parse data (if needed).
 
 ![project architecture diagram](https://i.postimg.cc/8zfZW6sW/clean-arch-diagram.png)
 
@@ -62,4 +76,4 @@ The Go server will run default on port `8000`.
 
 ### Documentation
 
-Swagger
+TODO: Swagger

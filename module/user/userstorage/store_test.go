@@ -3,9 +3,10 @@ package userstorage
 import (
 	"app-invite-service/module/user/usermodel"
 	"context"
-	"gorm.io/gorm"
 	"reflect"
 	"testing"
+
+	"gorm.io/gorm"
 )
 
 func TestNewSQLStore(t *testing.T) {

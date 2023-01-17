@@ -1,11 +1,13 @@
 package jwt_test
 
 import (
-	"app-invite-service/component/tokenprovider"
-	"app-invite-service/component/tokenprovider/jwt"
+	"testing"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"testing"
+
+	"app-invite-service/component/tokenprovider"
+	"app-invite-service/component/tokenprovider/jwt"
 )
 
 func TestJwtProvider_Generate(t *testing.T) {

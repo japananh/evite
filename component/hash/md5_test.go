@@ -2,8 +2,9 @@ package hash_test
 
 import (
 	"app-invite-service/component/hash"
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestMd5Hash_Hash(t *testing.T) {

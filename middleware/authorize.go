@@ -38,7 +38,7 @@ func RequiredAuth(appCtx component.AppContext) func(c *gin.Context) {
 			panic(err)
 		}
 
-		db := appCtx.GetMainDBConnection()
+		db := appCtx.GetDBConn()
 		store := userstorage.NewSQLStore(db)
 
 		payload, err := tokenProvider.Validate(token)

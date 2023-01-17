@@ -3,6 +3,7 @@ package middleware
 import (
 	"app-invite-service/common"
 	"app-invite-service/component"
+
 	"github.com/gin-gonic/gin"
 )
 

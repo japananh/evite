@@ -4,14 +4,20 @@ import (
 	"app-invite-service/common"
 	"app-invite-service/module/user/usermodel"
 	"context"
+
 	"gorm.io/gorm"
 )
+
+type ISqlStore interface {
+	CreateUser(_ context.Context, data *usermodel.UserCreate) error
+	FindUser(_ context.Context, conditions map[string]interface{}, moreInfo ...string) (*usermodel.User, error)
+}
 
 type sqlStore struct {
 	db *gorm.DB
 }
 
-func NewSQLStore(db *gorm.DB) *sqlStore {
+func NewSQLStore(db *gorm.DB) ISqlStore {
 	return &sqlStore{db: db}
 }
 

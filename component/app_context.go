@@ -2,14 +2,15 @@ package component
 
 import (
 	"app-invite-service/component/tokenprovider"
+
 	"github.com/go-redis/redis/v8"
 	"gorm.io/gorm"
 )
 
 type AppContext interface {
 	SecretKey() string
-	GetMainDBConnection() *gorm.DB
-	GetRedisConnection() *redis.Client
+	GetDBConn() *gorm.DB
+	GetRedisConn() *redis.Client
 	GetTokenConfig() *tokenprovider.TokenConfig
 }
 
@@ -25,15 +26,15 @@ func NewAppContext(
 	redis *redis.Client,
 	secretKey string,
 	tokenConfig *tokenprovider.TokenConfig,
-) *appCtx {
+) AppContext {
 	return &appCtx{secretKey: secretKey, db: db, redis: redis, tokenConfig: tokenConfig}
 }
 
-func (ctx *appCtx) GetMainDBConnection() *gorm.DB {
+func (ctx *appCtx) GetDBConn() *gorm.DB {
 	return ctx.db
 }
 
-func (ctx *appCtx) GetRedisConnection() *redis.Client {
+func (ctx *appCtx) GetRedisConn() *redis.Client {
 	return ctx.redis
 }
 

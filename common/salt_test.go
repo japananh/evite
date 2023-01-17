@@ -2,8 +2,9 @@ package common_test
 
 import (
 	"app-invite-service/common"
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestSalt_GenSalt(t *testing.T) {

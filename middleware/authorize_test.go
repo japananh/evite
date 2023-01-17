@@ -1,9 +1,11 @@
 package middleware_test
 
 import (
-	"app-invite-service/middleware"
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+
+	"app-invite-service/middleware"
 )
 
 func TestMiddlewareAuthorize_ExtractTokenFromHeaderString(t *testing.T) {

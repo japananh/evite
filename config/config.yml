@@ -1,0 +1,25 @@
+app:
+  name: 'evite'
+  version: '1.0.0'
+  port: 6000
+  env: 'prod'
+  access_token_expiry: 86400
+  refresh_token_expiry: 604800
+  allowed_origins: '*'
+#  secret_key: 'secret'
+
+logger:
+  log_level: 'debug'
+
+mysql:
+  pool_max: 2
+#  url: user:password@tcp(127.0.0.1:3308)/evite?charset=utf8mb4&parseTime=True&loc=Local&multiStatements=true
+
+redis:
+  port: 6379
+  host: localhost
+  password: eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
+
+#rabbitmq:
+#  rpc_server_exchange: 'rpc_server'
+#  rpc_client_exchange: 'rpc_client'

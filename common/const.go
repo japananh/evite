@@ -1,7 +1,7 @@
 package common
 
 const (
-	DbTypeUser = 1
+	AppEnvDev = "dev"
 )
 
 const InviteTokenExpirySecond = 604800

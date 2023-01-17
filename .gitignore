@@ -24,3 +24,6 @@ bin/
 
 # ignore local environment variable file
 .env
+
+# ignore local run files
+**/.run/*.local.run.xml

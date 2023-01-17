@@ -1,6 +1,8 @@
 package ginuser
 
 import (
+	"net/http"
+
 	"app-invite-service/common"
 	"app-invite-service/component"
 	"app-invite-service/component/hash"
@@ -8,8 +10,8 @@ import (
 	"app-invite-service/module/user/userbiz"
 	"app-invite-service/module/user/usermodel"
 	"app-invite-service/module/user/userstorage"
+
 	"github.com/gin-gonic/gin"
-	"net/http"
 )
 
 func Login(appCtx component.AppContext) gin.HandlerFunc {
@@ -20,7 +22,7 @@ func Login(appCtx component.AppContext) gin.HandlerFunc {
 			panic(common.ErrInvalidRequest(err))
 		}
 
-		db := appCtx.GetMainDBConnection()
+		db := appCtx.GetDBConn()
 		store := userstorage.NewSQLStore(db)
 		tokenProvider := jwt.NewTokenJWTProvider(appCtx.SecretKey())
 		md5 := hash.NewMd5Hash()
@@ -45,7 +47,7 @@ func Register(appCtx component.AppContext) gin.HandlerFunc {
 			panic(common.ErrInvalidRequest(err))
 		}
 
-		db := appCtx.GetMainDBConnection()
+		db := appCtx.GetDBConn()
 		store := userstorage.NewSQLStore(db)
 		md5 := hash.NewMd5Hash()
 		biz := userbiz.NewRegisterBiz(store, md5)
@@ -60,7 +62,7 @@ func Register(appCtx component.AppContext) gin.HandlerFunc {
 
 func GenerateInviteToken(appCtx component.AppContext) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		redis := appCtx.GetRedisConnection()
+		redis := appCtx.GetRedisConn()
 		biz := userbiz.NewGenerateTokenBiz(redis)
 
 		result, err := biz.GenerateToken(c.Request.Context())
@@ -80,7 +82,7 @@ func LoginWithInviteToken(appCtx component.AppContext) gin.HandlerFunc {
 			panic(common.ErrInvalidRequest(err))
 		}
 
-		redis := appCtx.GetRedisConnection()
+		redis := appCtx.GetRedisConn()
 		tokenProvider := jwt.NewTokenJWTProvider(appCtx.SecretKey())
 		md5 := hash.NewMd5Hash()
 		tokenConfig := appCtx.GetTokenConfig()
@@ -98,7 +100,7 @@ func LoginWithInviteToken(appCtx component.AppContext) gin.HandlerFunc {
 
 func ValidateInvitationToken(appCtx component.AppContext) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		redis := appCtx.GetRedisConnection()
+		redis := appCtx.GetRedisConn()
 		biz := userbiz.NewValidateInviteTokenBiz(redis)
 		if err := biz.ValidateInvitationToken(c.Request.Context(), c.Query("invitation_token")); err != nil {
 			panic(err)
@@ -115,7 +117,7 @@ func ListInvitationToken(appCtx component.AppContext) gin.HandlerFunc {
 			panic(common.ErrInvalidRequest(err))
 		}
 
-		redis := appCtx.GetRedisConnection()
+		redis := appCtx.GetRedisConn()
 		biz := userbiz.NewListInvitationTokenBiz(redis)
 
 		result, err := biz.ListInvitationToken(c.Request.Context(), &filter)
@@ -134,7 +136,7 @@ func UpdateInvitationToken(appCtx component.AppContext) gin.HandlerFunc {
 			panic(common.ErrInvalidRequest(err))
 		}
 
-		redis := appCtx.GetRedisConnection()
+		redis := appCtx.GetRedisConn()
 		biz := userbiz.NewUpdateInvitationTokenBiz(redis)
 		if err := biz.UpdateInvitationToken(c.Request.Context(), c.Param("id"), &data); err != nil {
 			panic(err)
